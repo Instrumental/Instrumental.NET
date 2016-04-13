@@ -22,6 +22,8 @@ mcs -sdk:45 \
   -doc:bin/Instrumental.xml \
   -platform:anycpu
 
+internalversion=$(monodis --assembly bin/Instrumental.dll | grep Version)
+echo Internal assembly version is $internalversion
 script/nuget pack Instrumental.nuspec -OutputDirectory bin/
 
 link=`echo $references | sed 's/,/ /g' | sed -E 's/ System\..*\.dll//'`
