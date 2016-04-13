@@ -12,14 +12,17 @@ which mcs > /dev/null  || (echo "mcs must be installed"; exit 1)
 
 script/nuget install vendor/packages.config -o vendor
 mkdir -p bin
-
-references=""
+pwd
+references="vendor/Common.Logging.Core.2.2.0/lib/net40/Common.Logging.Core.dll"
 mcs -sdk:45 \
+  -recurse:'Instrumental.NET/*.cs' \
   -r:$references \
   -target:library \
   -out:bin/Instrumental.dll \
-  -recurse:'Instrumental.NET/*.cs' \
   -doc:bin/Instrumental.xml \
   -platform:anycpu
 
-script/nuget pack -OutputDirectory bin/
+script/nuget pack Instrumental.nuspec -OutputDirectory bin/
+
+link=`echo $references | sed 's/,/ /g' | sed -E 's/ System\..*\.dll//'`
+mono vendor/ILRepack.exe /internalize /out:bin/InstrumentalWithDependencies.dll bin/Instrumental.dll $link
