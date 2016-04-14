@@ -4,4 +4,4 @@ cd "$(dirname "$0")/.."
 
 type mono || brew install mono
 
-bin/nuget install packages.config -o vendor
+script/nuget install packages.config -o vendor
