@@ -10,7 +10,7 @@ fi
 which mono > /dev/null || (echo "mono must be installed"; exit 1)
 which mcs > /dev/null  || (echo "mcs must be installed"; exit 1)
 
-bin/nuget install packages.config -o vendor
+script/nuget install packages.config -o vendor
 mkdir -p bin
 
 references="vendor/Common.Logging.Core.2.2.0/lib/net40/Common.Logging.Core.dll"
@@ -22,9 +22,9 @@ mcs -sdk:45 \
   -doc:bin/Instrumental.xml \
   -platform:anycpu
 
-bin/nuget pack Instrumental.nuspec -OutputDirectory bin/
+script/nuget pack Instrumental.nuspec -OutputDirectory bin/
 
 link=`echo $references | sed 's/,/ /g' | sed -E 's/ System\..*\.dll//'`
-mono bin/ILRepack.exe /internalize /out:bin/InstrumentalWithDependencies.dll bin/Instrumental.dll $link
+mono vendor/ILRepack.exe /internalize /out:bin/InstrumentalWithDependencies.dll bin/Instrumental.dll $link
 
 script/check_version
