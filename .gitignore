@@ -174,4 +174,4 @@ UpgradeLog*.htm
 FakesAssemblies/
 
 # vendor dir for packages from nuget
-vendor/*
+vendor/*/*
