@@ -1,0 +1,18 @@
+#!/bin/bash
+
+cd "$(dirname "$0")/.."
+
+script/compile
+
+references="bin/Instrumental.dll,vendor/NUnit.3.2.0/lib/net45/nunit.framework.dll"
+mcs -sdk:4.5 \
+    -r:$references \
+    -recurse:'test/*.cs' \
+    -target:library \
+    -out:bin/InstrumentalTests.dll \
+    -platform:anycpu
+
+link=`echo $references | sed 's/,/ /g' | sed -E 's/ System\..*\.dll//'`
+mono bin/ILRepack.exe /internalize /out:bin/InstrumentalTestsWithDependencies.dll bin/InstrumentalTests.dll $link
+
+nunit-console bin/InstrumentalTestsWithDependencies.dll

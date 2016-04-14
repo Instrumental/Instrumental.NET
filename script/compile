@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cd "$(dirname "$0")/.."
+
+references="vendor/Common.Logging.Core.2.2.0/lib/net40/Common.Logging.Core.dll"
+mcs -sdk:4.5 \
+  -recurse:'src/*.cs' \
+  -r:$references \
+  -target:library \
+  -out:bin/Instrumental.dll \
+  -doc:bin/Instrumental.xml \
+  -platform:anycpu
