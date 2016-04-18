@@ -14,7 +14,7 @@
 
 using System;
 
-namespace Instrumental.NET
+namespace Instrumental
 {
     public static class Extensions
     {
