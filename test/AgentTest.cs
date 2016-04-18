@@ -83,5 +83,17 @@ namespace Instrumental
       agent.Increment("csharp.YouShouldNotSeeThisMetric");
       Assert.AreEqual(0, agent.MessageCount, "Disabled agent still queued a message");
     }
+
+    [Test]
+    public void TestNonBlocking()
+		{
+			var agent = new Agent(testKey);
+			int fasterThanYourNetwork = 5;
+
+			var startTime = DateTime.Now;
+			agent.Increment("csharp.BlockingTest");
+			var duration = DateTime.Now - startTime;
+			Assert.Less(duration.TotalMilliseconds, fasterThanYourNetwork);
+    }
   }
 }
