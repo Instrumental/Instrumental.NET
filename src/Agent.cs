@@ -44,13 +44,13 @@ namespace Instrumental
       _collector = new Collector(apiKey);
     }
 
-    public void Gauge(String metricName, float value, DateTime? time = null)
+    public void Gauge(String metricName, float value, DateTime? time = null, int count = 1)
     {
       try
         {
           if (!Enabled || !ValidateMetricName(metricName)) return;
-          var t = time == null ? DateTime.Now : (DateTime)time;
-          _collector.SendMessage(String.Format("gauge {0} {1} {2}", metricName, value, t.ToEpoch()), Synchronous);
+          int metricTime = (time ?? DateTime.Now).ToEpoch();
+          _collector.SendMessage(String.Format("gauge {0} {1} {2} {3}", metricName, value, metricTime, count), Synchronous);
         }
       catch (Exception e)
         {
@@ -78,13 +78,13 @@ namespace Instrumental
       Time(metricName, action, 1000);
     }
 
-    public void Increment(String metricName, float value = 1, DateTime? time = null)
+    public void Increment(String metricName, float value = 1, DateTime? time = null, int count = 1)
     {
       try
         {
           if (!Enabled || !ValidateMetricName(metricName)) return;
-          var t = time == null ? DateTime.Now : (DateTime)time;
-          _collector.SendMessage(String.Format("increment {0} {1} {2}", metricName, value, t.ToEpoch()), Synchronous);
+          int metricTime = (time ?? DateTime.Now).ToEpoch();
+          _collector.SendMessage(String.Format("increment {0} {1} {2} {3}", metricName, value, metricTime, count), Synchronous);
         }
       catch (Exception e)
         {
@@ -97,8 +97,8 @@ namespace Instrumental
       try
         {
           if (!Enabled || !ValidateNote(message)) return;
-          var t = time == null ? DateTime.Now : (DateTime)time;
-          _collector.SendMessage(String.Format("notice {0} {1} {2}", t.ToEpoch(), durationInSeconds, message), Synchronous);
+          int metricTime = (time ?? DateTime.Now).ToEpoch();
+          _collector.SendMessage(String.Format("notice {0} {1} {2}", metricTime, durationInSeconds, message), Synchronous);
         }
       catch (Exception e)
         {
