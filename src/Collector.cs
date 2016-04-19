@@ -115,8 +115,6 @@ namespace Instrumental
           if (_currentCommand == null)
             _currentCommand = _messages.Take();
 
-
-
           if (IsSocketDisconnected(socket))
             throw new Exception("Disconnected");
 
