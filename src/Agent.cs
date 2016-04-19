@@ -130,7 +130,6 @@ namespace Instrumental
 
     private void ReportException(Exception e)
     {
-      throw e;
       _log.Error("An exception occurred", e);
     }
   }
