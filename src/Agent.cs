@@ -36,6 +36,9 @@ namespace Instrumental
 
     public Agent(String apiKey)
     {
+      if(string.IsNullOrEmpty(apiKey))
+        throw new ArgumentException("api key was null or missing", apiKey);
+
       Enabled = true;
       Synchronous = false;
       _collector = new Collector(apiKey);

@@ -98,5 +98,22 @@ namespace Instrumental
       var duration = DateTime.Now - startTime;
       Assert.Less(duration.TotalMilliseconds, fasterThanYourNetwork);
     }
+
+    [Test]
+    public void TestBadApiKey()
+    {
+      var agent = new Agent("if this is a valid key, something has gone terribly wrong");
+      agent.Increment("csharp.BadApiKey");
+      int exceptionsThrown = 0;
+      try
+        {
+          agent = new Agent(null);
+        }
+      catch(ArgumentException e)
+        {
+          exceptionsThrown += 1;
+        }
+      Assert.AreEqual(1, exceptionsThrown);
+    }
   }
 }
