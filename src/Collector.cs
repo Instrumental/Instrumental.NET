@@ -23,13 +23,13 @@ namespace Instrumental
 {
   class Collector
   {
-    private const int MaxBuffer = 5000;
     private const int Backoff = 2;
     private const int MaxReconnectDelay = 15;
-
     private readonly string _apiKey;
-    private readonly BlockingCollection<Tuple<String, AutoResetEvent>> _messages = new BlockingCollection<Tuple<String, AutoResetEvent>>();
-    private Tuple<String, AutoResetEvent> _currentCommand;
+
+    private const int MaxBuffer = 5000;
+    private readonly BlockingCollection<String> _messages = new BlockingCollection<String>(MaxBuffer);
+    private string _currentCommand;
     private BackgroundWorker _worker;
     private bool _queueFullWarned;
     private static readonly ILog _log = LogManager.GetCurrentClassLogger();
@@ -49,35 +49,23 @@ namespace Instrumental
 
     public void SendMessage(String message, bool synchronous)
     {
-      if (_worker == null) StartBackgroundWorker();
+      //this is a good place to test message for only safe characters (or at least, no \r or \n)
 
-      if (_messages.Count < MaxBuffer)
-        {
-          _queueFullWarned = false;
-          _log.DebugFormat("Queueing message: {0}", message);
-          QueueMessage(message, synchronous);
-        }
+      //should synchronous attempt to send, rahter than just attempt to add in a blocking way?
+      if(synchronous)
+        _messages.Add(message);
+      else if(_message.TryAdd(message))
+        if(_queueFullWarned)
+          {
+            _queueFullWarned = false;
+            _log.Info("Queue no longer full, processing messages");
+          }
       else
-        {
-          if (!_queueFullWarned)
-            {
-              _queueFullWarned = true;
-              _log.Warn("Queue full. Dropping messages until there's room.");
-            }
-          _log.DebugFormat(String.Format("Dropping message: {0}", message));
-        }
-    }
-
-    private void QueueMessage(string message, bool synchronous)
-    {
-      if(!synchronous)
-        _messages.Add(new Tuple<string, AutoResetEvent>(message, null));
-      else
-        {
-          var handle = new AutoResetEvent(false);
-          _messages.Add(new Tuple<string, AutoResetEvent>(message, handle));
-          handle.WaitOne();
-        }
+        if(!_queueFullWarned)
+          {
+            _queueFullWarned = true;
+            _log.Warn("Queue full.  Dropping messages until there is room");
+          }
     }
 
     private void StartBackgroundWorker()
@@ -137,7 +125,6 @@ namespace Instrumental
 
     private void Authenticate(Socket socket)
     {
-      var buf = new byte[3];
       var data = System.Text.Encoding.ASCII.GetBytes("hello version 1.0\n");
       socket.Send(data);
       data = System.Text.Encoding.ASCII.GetBytes(String.Format("authenticate {0}\n", _apiKey));
