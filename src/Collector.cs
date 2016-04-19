@@ -92,7 +92,6 @@ namespace Instrumental
             }
           catch (Exception e)
             {
-              throw e;
               _log.Error("An exception occurred", e);
               if (socket != null)
                 {
