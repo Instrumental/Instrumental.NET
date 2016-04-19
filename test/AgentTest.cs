@@ -77,7 +77,7 @@ namespace Instrumental
     [Test]
     public void TestNoticeAtATime()
     {
-      agent.Notice("C# test notice FROM THE PAST please ignore.", 300, pastEventTime);
+      agent.Notice("C# test notice FROM THE PAST please ignore.", pastEventTime, 300);
     }
 
     [Test]

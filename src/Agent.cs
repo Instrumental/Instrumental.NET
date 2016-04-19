@@ -48,6 +48,7 @@ namespace Instrumental
                                   );
     }
 
+    // should return value if the arguments were valid, null otherwise
     public void Gauge(String metricName, float value, DateTime? time = null, int count = 1)
     {
       try
@@ -62,6 +63,9 @@ namespace Instrumental
         }
     }
 
+    // can we make this return the original value?
+    // change this to private
+    // write a public version that does not take durationMultiplier
     public void Time(String metricName, Action action, float durationMultiplier = 1)
     {
       var start = DateTime.Now;
@@ -77,16 +81,18 @@ namespace Instrumental
         }
     }
 
+    // signature should match time
     public void TimeMs(String metricName, Action action)
     {
       Time(metricName, action, 1000);
     }
 
+    // should return value if the arguments were valid, null otherwise
     public void Increment(String metricName, float value = 1, DateTime? time = null, int count = 1)
-    {
-      try
-        {
-          if (!Enabled || !ValidateMetricName(metricName)) return;
+      {
+          try
+          {
+              if (!Enabled || !ValidateMetricName(metricName)) return;
           int metricTime = (time ?? DateTime.Now).ToEpoch();
           _collector.SendMessage(String.Format("increment {0} {1} {2} {3}", metricName, value, metricTime, count));
         }
@@ -96,7 +102,8 @@ namespace Instrumental
         }
     }
 
-    public void Notice(String message, float durationInSeconds = 0, DateTime? time = null)
+    // should return the message, if it was valid
+    public void Notice(String message, DateTime? time = null, float durationInSeconds = 0)
     {
       try
         {
