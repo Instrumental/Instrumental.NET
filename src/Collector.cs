@@ -45,27 +45,28 @@ namespace Instrumental
     public Collector(String apiKey)
     {
       _apiKey = apiKey;
+      StartBackgroundWorker();
     }
 
-    public void SendMessage(String message, bool synchronous)
+    public void SendMessage(String message)
     {
       //this is a good place to test message for only safe characters (or at least, no \r or \n)
-
-      //should synchronous attempt to send, rahter than just attempt to add in a blocking way?
-      if(synchronous)
-        _messages.Add(message);
-      else if(_message.TryAdd(message))
-        if(_queueFullWarned)
-          {
-            _queueFullWarned = false;
-            _log.Info("Queue no longer full, processing messages");
-          }
+      if(_messages.TryAdd(message))
+        {
+          if(_queueFullWarned)
+            {
+              _queueFullWarned = false;
+              _log.Info("Queue no longer full, processing messages");
+            }
+        }
       else
-        if(!_queueFullWarned)
-          {
-            _queueFullWarned = true;
-            _log.Warn("Queue full.  Dropping messages until there is room");
-          }
+        {
+          if(!_queueFullWarned)
+            {
+              _queueFullWarned = true;
+              _log.Warn("Queue full.  Dropping messages until there is room");
+            }
+        }
     }
 
     private void StartBackgroundWorker()
@@ -91,10 +92,13 @@ namespace Instrumental
             }
           catch (Exception e)
             {
+              throw e;
               _log.Error("An exception occurred", e);
               if (socket != null)
                 {
-                  socket.Disconnect(false);
+                  try {
+                    socket.Disconnect(false);
+                  } catch {}
                   socket = null;
                 }
               var delay = (int) Math.Min(MaxReconnectDelay, Math.Pow(failures++, Backoff));
@@ -108,17 +112,17 @@ namespace Instrumental
     {
       while (!_worker.CancellationPending)
         {
-          if (_currentCommand == null) _currentCommand = _messages.Take();
-          var message = _currentCommand.Item1;
-          var syncHandle = _currentCommand.Item2;
+          // only pop if the last _currentCommand did not send
+          if (_currentCommand == null)
+            _currentCommand = _messages.Take();
 
           if(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0)
             throw new Exception("Disconnected");
 
-          _log.DebugFormat("Sending: {0}", message);
-          var data = System.Text.Encoding.ASCII.GetBytes(message + "\n");
+          _log.DebugFormat("Sending: {0}", _currentCommand);
+          var data = System.Text.Encoding.ASCII.GetBytes(_currentCommand + "\n");
+
           socket.Send(data);
-          if (syncHandle != null) syncHandle.Set();
           _currentCommand = null;
         }
     }

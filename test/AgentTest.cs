@@ -5,6 +5,7 @@ namespace Instrumental
   using NUnit.Framework;
 
 
+
   [TestFixture]
   public class AgentTest
   {
@@ -21,6 +22,14 @@ namespace Instrumental
     public void Init()
     {
       agent = new Agent(testKey);
+    }
+
+    [TestFixtureTearDown]
+    public void FixtureTearDown()
+    {
+      // so that all the background workers finish
+      // Collector.Flush would be great here
+      System.Threading.Thread.Sleep(500);
     }
 
     [Test]
