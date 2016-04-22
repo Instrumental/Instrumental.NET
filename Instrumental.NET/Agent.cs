@@ -1,4 +1,5 @@
 ﻿//  Copyright 2014 Bloomerang
+//  Copyright 2016 Expected Behavior, LLC
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -44,7 +45,7 @@ namespace Instrumental.NET
             catch (Exception e)
             {
                 ReportException(e);
-            }            
+            }
         }
 
         public void Time(String metricName, Action action, float durationMultiplier = 1)
