@@ -48,30 +48,34 @@ namespace Instrumental
                                   );
     }
 
-    // should return value if the arguments were valid, null otherwise
-    public void Gauge(String metricName, float value, DateTime? time = null, int count = 1)
+    public float? Gauge(String metricName, float value, DateTime? time = null, int count = 1)
     {
       try
         {
-          if (!Enabled || !ValidateMetricName(metricName)) return;
+          if(!ValidateMetricName(metricName)) return null;
+          if(!Enabled) return value;
           int metricTime = (time ?? DateTime.Now).ToEpoch();
           _collector.SendMessage(String.Format("gauge {0} {1} {2} {3}", metricName, value, metricTime, count));
+          return value;
         }
       catch (Exception e)
         {
           ReportException(e);
         }
+      return null;
     }
 
-    // can we make this return the original value?
-    // change this to private
-    // write a public version that does not take durationMultiplier
-    public void Time(String metricName, Action action, float durationMultiplier = 1)
+    public T Time<T>(String metricName, Func<T> action)
+    {
+      return ActuallyTime(metricName, action);
+    }
+
+    private T ActuallyTime<T>(String metricName, Func<T> action, float durationMultiplier = 1)
     {
       var start = DateTime.Now;
       try
         {
-          action();
+          return action();
         }
       finally
         {
@@ -81,40 +85,43 @@ namespace Instrumental
         }
     }
 
-    // signature should match time
-    public void TimeMs(String metricName, Action action)
+    public T TimeMs<T>(String metricName, Func<T> action)
     {
-      Time(metricName, action, 1000);
+      return ActuallyTime(metricName, action, 1000);
     }
 
-    // should return value if the arguments were valid, null otherwise
-    public void Increment(String metricName, float value = 1, DateTime? time = null, int count = 1)
-      {
-          try
-          {
-              if (!Enabled || !ValidateMetricName(metricName)) return;
-          int metricTime = (time ?? DateTime.Now).ToEpoch();
-          _collector.SendMessage(String.Format("increment {0} {1} {2} {3}", metricName, value, metricTime, count));
-        }
-      catch (Exception e)
-        {
-          ReportException(e);
-        }
-    }
-
-    // should return the message, if it was valid
-    public void Notice(String message, DateTime? time = null, float durationInSeconds = 0)
+    public float? Increment(String metricName, float value = 1, DateTime? time = null, int count = 1)
     {
       try
         {
-          if (!Enabled || !ValidateNote(message)) return;
+          if(!ValidateMetricName(metricName)) return null;
+          if (!Enabled) return value;
           int metricTime = (time ?? DateTime.Now).ToEpoch();
-          _collector.SendMessage(String.Format("notice {0} {1} {2}", metricTime, durationInSeconds, message));
+          _collector.SendMessage(String.Format("increment {0} {1} {2} {3}", metricName, value, metricTime, count));
+          return value;
         }
       catch (Exception e)
         {
           ReportException(e);
         }
+      return null;
+    }
+
+    public String Notice(String message, DateTime? time = null, TimeSpan? duration = null)
+    {
+      try
+        {
+          if (!ValidateNote(message)) return null;
+          if (!Enabled) return message;
+          int metricTime = (time ?? DateTime.Now).ToEpoch();
+          _collector.SendMessage(String.Format("notice {0} {1} {2}", metricTime, duration?.Seconds ?? 0, message));
+          return message;
+        }
+      catch (Exception e)
+        {
+          ReportException(e);
+        }
+      return null;
     }
 
     private static bool ValidateNote(String message)

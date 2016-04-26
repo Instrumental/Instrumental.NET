@@ -47,19 +47,32 @@ namespace Instrumental
     [Test]
     public void TestTime()
     {
-      agent.Time("csharp.TestTime", () => { System.Threading.Thread.Sleep(100); });
+      agent.Time("csharp.TestTime", () => { System.Threading.Thread.Sleep(100); return 1; });
+    }
+
+    [Test]
+    public void TimeReturnsActionResult()
+    {
+      var actionResult = 27;
+      Func<int> action = () => { return actionResult; };
+      Assert.AreEqual(actionResult, agent.Time("csharp.TestReturns", action));
+      var actionResult2 = "things";
+      Func<string> action2 = () => { return actionResult2; };
+      Assert.AreEqual(actionResult2, agent.Time("csharp.TestReturns", action2));
+      Assert.AreEqual(actionResult2, agent.Time("csharp.TestReturns", () => { return actionResult2; }));;
     }
 
     [Test]
     public void TestTimeMs()
     {
-      agent.TimeMs("csharp.TestTimeMs", () => { System.Threading.Thread.Sleep(100); });
+      agent.TimeMs("csharp.TestTimeMs", () => { System.Threading.Thread.Sleep(100); return 1; });
     }
 
     [Test]
     public void TestNotice()
     {
-      agent.Notice("C# test notice please ignore.");
+        var message = "C# test notice please ignore.";
+        Assert.AreEqual(message, agent.Notice(message));
     }
 
     [Test]
@@ -71,13 +84,27 @@ namespace Instrumental
     [Test]
     public void TestIncrementAtATime()
     {
-      agent.Increment("csharp.TestIncrementPast", 13, pastEventTime);
+      Assert.AreEqual(13, agent.Increment("csharp.TestIncrementPast", 13, pastEventTime));
+    }
+
+    [Test]
+    public void DisabledIncrementReturnsValue()
+    {
+      agent.Enabled = false;
+      Assert.AreEqual(13, agent.Increment("csharp.TestIncrementPast", 13, pastEventTime));
+    }
+
+    [Test]
+    public void InvalidMetricNameReturnsNull()
+    {
+      Assert.AreEqual(null, agent.Increment(@"csharp.
+TestIncrementPast", 13, pastEventTime));
     }
 
     [Test]
     public void TestNoticeAtATime()
     {
-      agent.Notice("C# test notice FROM THE PAST please ignore.", pastEventTime, 300);
+      agent.Notice("C# test notice FROM THE PAST using TimeSpan", pastEventTime, TimeSpan.FromMinutes(3));
     }
 
     [Test]
