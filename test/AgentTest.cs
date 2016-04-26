@@ -24,7 +24,7 @@ namespace Instrumental
       agent = new Agent(testKey);
     }
 
-    [TestFixtureTearDown]
+    [OneTimeTearDown]
     public void FixtureTearDown()
     {
       // so that all the background workers finish
@@ -138,7 +138,7 @@ TestIncrementPast", 13, pastEventTime));
     {
       bool excepted = false;
       try { agent = new Agent(null); }
-      catch(ArgumentException e) { excepted = true; }
+      catch(ArgumentException) { excepted = true; }
       Assert.AreEqual(true, excepted);
     }
 
