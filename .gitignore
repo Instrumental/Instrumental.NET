@@ -175,3 +175,6 @@ FakesAssemblies/
 
 # vendor dir for packages from nuget
 vendor/*/*
+
+# testkey for instrumental test project
+testkey

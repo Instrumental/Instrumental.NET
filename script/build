@@ -13,14 +13,7 @@ which mcs > /dev/null  || (echo "mcs must be installed"; exit 1)
 script/nuget install packages.config -o vendor
 mkdir -p bin
 
-references="vendor/Common.Logging.Core.2.2.0/lib/net40/Common.Logging.Core.dll"
-mcs -sdk:45 \
-  -recurse:'src/*.cs' \
-  -r:$references \
-  -target:library \
-  -out:bin/Instrumental.dll \
-  -doc:bin/Instrumental.xml \
-  -platform:anycpu
+script/compile
 
 script/nuget pack Instrumental.nuspec -OutputDirectory bin/
 

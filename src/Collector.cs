@@ -20,7 +20,7 @@ using System.Net.Sockets;
 using System.Threading;
 using Common.Logging;
 
-namespace Instrumental.NET
+namespace Instrumental
 {
     class Collector
     {
@@ -34,6 +34,14 @@ namespace Instrumental.NET
         private BackgroundWorker _worker;
         private bool _queueFullWarned;
         private static readonly ILog _log = LogManager.GetCurrentClassLogger();
+
+        public int MessageCount
+        {
+            get
+            {
+                return _messages.Count;
+            }
+        }
 
         public Collector(String apiKey)
         {

@@ -17,7 +17,7 @@ using System;
 using System.Text.RegularExpressions;
 using Common.Logging;
 
-namespace Instrumental.NET
+namespace Instrumental
 {
     public class Agent
     {
@@ -26,6 +26,14 @@ namespace Instrumental.NET
 
         private readonly Collector _collector;
         private static readonly ILog _log = LogManager.GetCurrentClassLogger();
+
+        public int MessageCount
+        {
+            get
+            {
+                return _collector.MessageCount;
+            }
+        }
 
         public Agent(String apiKey)
         {
@@ -82,13 +90,13 @@ namespace Instrumental.NET
             }
         }
 
-        public void Notice(String message, float duration = 0, DateTime? time = null)
+        public void Notice(String message, float durationInSeconds = 0, DateTime? time = null)
         {
             try
             {
                 if (!Enabled || !ValidateNote(message)) return;
                 var t = time == null ? DateTime.Now : (DateTime)time;
-                _collector.SendMessage(String.Format("notice {0} {1} {2}", t.ToEpoch(), duration, message), Synchronous);
+                _collector.SendMessage(String.Format("notice {0} {1} {2}", t.ToEpoch(), durationInSeconds, message), Synchronous);
             }
             catch (Exception e)
             {
@@ -119,6 +127,5 @@ namespace Instrumental.NET
         {
             _log.Error("An exception occurred", e);
         }
-
     }
 }

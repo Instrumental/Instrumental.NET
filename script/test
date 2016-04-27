@@ -1,0 +1,33 @@
+#!/bin/bash
+
+cd "$(dirname "$0")/.."
+
+if [[ ! -f testkey ]]; then
+  echo Please put a project API key in a file called testkey in the root directory of this project
+  echo We recommend https://instrumentalapp.com/projects/1010
+  exit 1
+fi
+
+script/compile
+
+references="bin/Instrumental.dll,vendor/NUnit.3.2.0/lib/net45/nunit.framework.dll,vendor/Common.Logging.Core.2.2.0/lib/net40/Common.Logging.Core.dll"
+mcs -sdk:4.5 \
+    -r:$references \
+    -recurse:'test/*.cs' \
+    -target:library \
+    -out:bin/InstrumentalTests.dll \
+    -platform:anycpu
+
+link=`echo $references | sed 's/,/ /g' | sed -E 's/ System\..*\.dll//'`
+mono vendor/ILRepack.exe /internalize /out:bin/InstrumentalTestsWithDependencies.dll bin/InstrumentalTests.dll $link
+
+echo
+echo "------------------------------------------------------------"
+echo Your test output actually starts here
+echo Please go to your test project and look for the resultant metrics:
+echo csharp.TestGauge, csharp.TestIncrement, csharp.TestTime, csharp.TestTimeMS, a notice
+echo All those things I ust listed, but with "past" on the end
+echo "------------------------------------------------------------"
+echo
+
+nunit-console bin/InstrumentalTestsWithDependencies.dll
