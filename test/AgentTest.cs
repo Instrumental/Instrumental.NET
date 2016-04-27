@@ -24,7 +24,9 @@ namespace Instrumental
       agent = new Agent(testKey);
     }
 
-    [OneTimeTearDown]
+    // Despite the compiler warning, you cannot use OneTimeTearDown here, it will not fire
+    // Thanks, NUnit.
+    [TestFixtureTearDown]
     public void FixtureTearDown()
     {
       // so that all the background workers finish
