@@ -163,7 +163,7 @@ namespace Instrumental
           if (!ValidateNote(message)) return null;
           if (!Enabled) return message;
           int metricTime = (time ?? DateTime.Now).ToEpoch();
-          _collector.SendMessage(String.Format("notice {0} {1} {2}", metricTime, duration?.Seconds ?? 0, message));
+          _collector.SendMessage(String.Format("notice {0} {1} {2}", metricTime, duration?.TotalSeconds ?? 0, message));
           return message;
         }
       catch (Exception e)
