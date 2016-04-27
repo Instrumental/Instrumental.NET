@@ -17,12 +17,12 @@ using System;
 
 namespace Instrumental
 {
-    public static class Extensions
+  public static class Extensions
+  {
+    public static int ToEpoch(this DateTime dt)
     {
-        public static int ToEpoch(this DateTime dt)
-        {
-            var t = dt.ToUniversalTime() - new DateTime(1970, 1, 1);
-            return (int)t.TotalSeconds;
-        }
+      var t = dt.ToUniversalTime() - new DateTime(1970, 1, 1);
+      return (int)t.TotalSeconds;
     }
+  }
 }

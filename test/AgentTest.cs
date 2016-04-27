@@ -86,17 +86,17 @@ namespace Instrumental
 
     [Test]
     public void TestNonBlocking()
-		{
-			// This might be blocking still - we just test that the time it takes to return is very low
-			// It is an unacknowledge protocol, so it might be that that fast
-			// When agent configuration is possible, testing this with a misconfigured agent may be better
-			var agent = new Agent(testKey);
-			int fasterThanYourNetwork = 5;
+    {
+      // This might be blocking still - we just test that the time it takes to return is very low
+      // It is an unacknowledge protocol, so it might be that that fast
+      // When agent configuration is possible, testing this with a misconfigured agent may be better
+      var agent = new Agent(testKey);
+      int fasterThanYourNetwork = 5;
 
-			var startTime = DateTime.Now;
-			agent.Increment("csharp.BlockingTest");
-			var duration = DateTime.Now - startTime;
-			Assert.Less(duration.TotalMilliseconds, fasterThanYourNetwork);
+      var startTime = DateTime.Now;
+      agent.Increment("csharp.BlockingTest");
+      var duration = DateTime.Now - startTime;
+      Assert.Less(duration.TotalMilliseconds, fasterThanYourNetwork);
     }
   }
 }
