@@ -3,10 +3,13 @@
 cd "$(dirname "$0")/.."
 
 references="vendor/Common.Logging.Core.2.2.0/lib/net40/Common.Logging.Core.dll"
-mcs -sdk:4.5 \
+mcs -sdk:'4.5' \
   -recurse:'src/*.cs' \
   -r:$references \
   -target:library \
   -out:bin/Instrumental.dll \
   -doc:bin/Instrumental.xml \
   -platform:anycpu
+
+link=`echo $references | sed 's/,/ /g' | sed -E 's/ System\..*\.dll//'`
+mono vendor/ILRepack.exe /internalize /out:bin/InstrumentalWithDependencies.dll bin/Instrumental.dll $link

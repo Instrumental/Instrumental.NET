@@ -10,8 +10,8 @@ fi
 
 script/compile
 
-references="bin/Instrumental.dll,vendor/NUnit.3.2.0/lib/net45/nunit.framework.dll,vendor/Common.Logging.Core.2.2.0/lib/net40/Common.Logging.Core.dll"
-mcs -sdk:4.5 \
+references="bin/InstrumentalWithDependencies.dll,vendor/NUnit.3.2.0/lib/net45/nunit.framework.dll"
+mcs -sdk:'4.5' \
     -r:$references \
     -recurse:'test/*.cs' \
     -target:library \
