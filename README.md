@@ -1,7 +1,10 @@
-Instrumental.NET
+Instrumental .NET Agent
 ================
 
-A C# agent library for the [Instrumental] logging service without using Statsd.
+Instrumental is a [application monitoring platform](https://instrumentalapp.com) built for developers who want a better understanding of their production software. Powerful tools, like the [Instrumental Query Language](https://instrumentalapp.com/docs/query-language), combined with an exploration-focused interface allow you to get real answers to complex questions, in real-time.
+
+This agent supports custom metric monitoring for .NET applications.
+
 
 Features
 ========
