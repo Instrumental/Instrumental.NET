@@ -5,24 +5,52 @@ Instrumental is a [application monitoring platform](https://instrumentalapp.com)
 
 This agent supports custom metric monitoring for .NET applications.
 
+Getting Started
+===============
 
-Features
-========
- - Doesn't require Statsd
- - Uses [Common.logging], so it probably works with your existing logging library
+If you are using NuGet, add Instrumental.NET to your packages.config:
 
-Example
-=======
-```C#
-using Instrumental.NET;
+```xml
+<id="Instrumental" version="0.2.0" targetFramework="net45" />
+```
+
+Or, download [Instrumental.dll](https://github.com/Instrumental/Instrumental.NET/releases/tag/v0.2.0).
+
+Visit [instrumentalapp.com](https://instrumentalapp.com) and create an account, then initialize the agent with your API key, found in the Docs section.
+
+Simple Example
+==============
+
+Here are the basic Instrumental monitoring commands:
+
+```csharp
+using Instrumental;
 
 var agent = new Agent("your api key here");
 
 agent.Increment("myapp.logins");
 agent.Gauge("myapp.server1.free_ram", 1234567890);
-agent.Time("myapp.expensive_operation", () => LongRunningOperation());
-agent.Notice("Server maintenance window", 3600);
+agent.Notice("Server maintenance window", TimeSpan.FromMinutes(15));
+Func<string> action = () => { DoLongRunningAction(); return "everything is fine"; };
+String actionResult = agent.Time("myapp.expensive_operation", action);
 ```
+
+Worker Example
+==============
+
+You can easily use Instrumental Agent with background workers too, in this somewhat contrived timing example.  Note that Functions passed to Time must return a value or be defined as a Func<T> with a type:
+
+```csharp
+using Instrumental;
+using System.ComponentModel;
+
+BackgroundWorker bg = new BackgroundWorker();
+bg.DoWork += delegate { agent.Time("csharp.worker.TimedWorker", () => { System.Threading.Thread.Sleep(500); return 0;} );
+bg.RunWorkerAsync();
+```
+
+Links
+=====
 
 [Instrumental]:http://instrumentalapp.com
 [Common.logging]:http://netcommon.sourceforge.net/
