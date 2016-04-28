@@ -52,5 +52,5 @@ bg.RunWorkerAsync();
 Links
 =====
 
-[Instrumental]:http://instrumentalapp.com
-[Common.logging]:http://netcommon.sourceforge.net/
+[Instrumental](http://instrumentalapp.com)
+[Common.logging](http://netcommon.sourceforge.net/)
