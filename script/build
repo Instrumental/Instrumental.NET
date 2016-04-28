@@ -17,7 +17,4 @@ script/compile
 
 script/nuget pack Instrumental.nuspec -OutputDirectory bin/
 
-link=`echo $references | sed 's/,/ /g' | sed -E 's/ System\..*\.dll//'`
-mono vendor/ILRepack.exe /internalize /out:bin/InstrumentalWithDependencies.dll bin/Instrumental.dll $link
-
 script/check_version
