@@ -35,6 +35,10 @@ namespace Instrumental
     private bool _queueFullWarned;
     private static readonly ILog _log = LogManager.GetCurrentClassLogger();
 
+    private static readonly string InstrumentalAddress = "collector.instrumentalapp.com";
+    private static readonly int InstrumentalPort = 8000;
+    private static readonly byte[] InstrumentalOk = {111, 107, 10};
+
     public int MessageCount
     {
       get
@@ -79,17 +83,25 @@ namespace Instrumental
 
     private void WorkerOnDoWork(object sender, DoWorkEventArgs doWorkEventArgs)
     {
+      var failures = 0;
+      Socket socket = null;
+
+      // This is not really the worker loop, it is just very careful connect/authenticate
+      // If you want the worker loop, look at SendQueuedMessages
       while (!_worker.CancellationPending)
         {
-          Socket socket = null;
-          var failures = 0;
-
           try
             {
               socket = Connect();
-              Authenticate(socket);
-              failures = 0;
+
+              if(!Authenticate(socket))
+                {
+                  Thread.Sleep(5000);
+                  continue;
+                }
+
               SendQueuedMessages(socket);
+              failures = 0;
             }
           catch (Exception e)
             {
@@ -97,7 +109,8 @@ namespace Instrumental
               if (socket != null)
                 {
                   try {
-                    socket.Disconnect(false);
+                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Close();
                   } catch {}
                   socket = null;
                 }
@@ -127,19 +140,31 @@ namespace Instrumental
         }
     }
 
-    private void Authenticate(Socket socket)
+    private bool Authenticate(Socket socket)
     {
       var data = System.Text.Encoding.ASCII.GetBytes("hello version 1.0\n");
       socket.Send(data);
+      if(!ReceiveOk(socket)) return false;
       data = System.Text.Encoding.ASCII.GetBytes(String.Format("authenticate {0}\n", _apiKey));
       socket.Send(data);
+      return ReceiveOk(socket);
+    }
+
+    private bool ReceiveOk(Socket socket)
+    {
+      byte[] buffer = new byte[3];
+      socket.Receive(buffer);
+      // I'm not including all of LINQ for this shit
+      // return InstrumentalOk.SequenceEqual(buffer);
+
+      return InstrumentalOk[0] == buffer[0] && InstrumentalOk[1] == buffer[1] && InstrumentalOk[2] == buffer[2];
     }
 
     private static Socket Connect()
     {
       var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
       _log.Info("Connecting to collector.");
-      socket.Connect("collector.instrumentalapp.com", 8000);
+      socket.Connect(InstrumentalAddress, InstrumentalPort);
       _log.Info("Connected to collector.");
       return socket;
     }
