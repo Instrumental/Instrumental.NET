@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Instrumental</id>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <authors>Nathan Acuff</authors>
     <owners>Nathan Acuff</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
