@@ -24,13 +24,13 @@ namespace Instrumental
 {
   class Collector
   {
-    private const int MaxBuffer = 5000;
     private const int Backoff = 2;
     private const int MaxReconnectDelay = 15;
-
     private readonly string _apiKey;
-    private readonly BlockingCollection<Tuple<String, AutoResetEvent>> _messages = new BlockingCollection<Tuple<String, AutoResetEvent>>();
-    private Tuple<String, AutoResetEvent> _currentCommand;
+
+    private const int MaxBuffer = 5000;
+    private readonly BlockingCollection<String> _messages = new BlockingCollection<String>(MaxBuffer);
+    private string _currentCommand;
     private BackgroundWorker _worker;
     private bool _queueFullWarned;
     private static readonly ILog _log = LogManager.GetCurrentClassLogger();
@@ -46,38 +46,27 @@ namespace Instrumental
     public Collector(String apiKey)
     {
       _apiKey = apiKey;
+      StartBackgroundWorker();
     }
 
-    public void SendMessage(String message, bool synchronous)
+    public void SendMessage(String message)
     {
-      if (_worker == null) StartBackgroundWorker();
-
-      if (_messages.Count < MaxBuffer)
+      //this is a good place to test message for only safe characters (or at least, no \r or \n)
+      if(_messages.TryAdd(message))
         {
-          _queueFullWarned = false;
-          _log.DebugFormat("Queueing message: {0}", message);
-          QueueMessage(message, synchronous);
+          if(_queueFullWarned)
+            {
+              _queueFullWarned = false;
+              _log.Info("Queue no longer full, processing messages");
+            }
         }
       else
         {
-          if (!_queueFullWarned)
+          if(!_queueFullWarned)
             {
               _queueFullWarned = true;
-              _log.Warn("Queue full. Dropping messages until there's room.");
+              _log.Warn("Queue full.  Dropping messages until there is room");
             }
-          _log.DebugFormat(String.Format("Dropping message: {0}", message));
-        }
-    }
-
-    private void QueueMessage(string message, bool synchronous)
-    {
-      if(!synchronous)
-        _messages.Add(new Tuple<string, AutoResetEvent>(message, null));
-      else
-        {
-          var handle = new AutoResetEvent(false);
-          _messages.Add(new Tuple<string, AutoResetEvent>(message, handle));
-          handle.WaitOne();
         }
     }
 
@@ -107,7 +96,9 @@ namespace Instrumental
               _log.Error("An exception occurred", e);
               if (socket != null)
                 {
-                  socket.Disconnect(false);
+                  try {
+                    socket.Disconnect(false);
+                  } catch {}
                   socket = null;
                 }
               var delay = (int) Math.Min(MaxReconnectDelay, Math.Pow(failures++, Backoff));
@@ -121,24 +112,23 @@ namespace Instrumental
     {
       while (!_worker.CancellationPending)
         {
-          if (_currentCommand == null) _currentCommand = _messages.Take();
-          var message = _currentCommand.Item1;
-          var syncHandle = _currentCommand.Item2;
+          // only pop if the last _currentCommand did not send
+          if (_currentCommand == null)
+            _currentCommand = _messages.Take();
 
-          if(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0)
+          if (IsSocketDisconnected(socket))
             throw new Exception("Disconnected");
 
-          _log.DebugFormat("Sending: {0}", message);
-          var data = System.Text.Encoding.ASCII.GetBytes(message + "\n");
+          _log.DebugFormat("Sending: {0}", _currentCommand);
+          var data = System.Text.Encoding.ASCII.GetBytes(_currentCommand + "\n");
+
           socket.Send(data);
-          if (syncHandle != null) syncHandle.Set();
           _currentCommand = null;
         }
     }
 
     private void Authenticate(Socket socket)
     {
-      var buf = new byte[3];
       var data = System.Text.Encoding.ASCII.GetBytes("hello version 1.0\n");
       socket.Send(data);
       data = System.Text.Encoding.ASCII.GetBytes(String.Format("authenticate {0}\n", _apiKey));
@@ -152,6 +142,27 @@ namespace Instrumental
       socket.Connect("collector.instrumentalapp.com", 8000);
       _log.Info("Connected to collector.");
       return socket;
+    }
+
+    private static bool IsSocketDisconnected (Socket socket)
+    {
+      // Is there any data available?
+      byte[] buffer = null;
+      while (socket.Poll(1, SelectMode.SelectRead))
+        {
+          // If no data is available then socket disconnected
+          if (socket.Available == 0)
+            return true;
+
+          // Clear socket data; we don't care what InstrumentApp sends
+          buffer = buffer ?? new byte[Math.Min(1024, socket.Available)];
+          do
+            {
+              socket.Receive(buffer);
+            }
+          while (socket.Available != 0);
+        }
+      return false;
     }
   }
 }

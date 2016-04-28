@@ -22,10 +22,10 @@ namespace Instrumental
   public class Agent
   {
     public bool Enabled { get; set; }
-    public bool Synchronous { get; set; }
 
     private readonly Collector _collector;
     private static readonly ILog _log = LogManager.GetCurrentClassLogger();
+    private readonly Regex _validateMetric;
 
     public int MessageCount
     {
@@ -37,18 +37,23 @@ namespace Instrumental
 
     public Agent(String apiKey)
     {
+      if(string.IsNullOrEmpty(apiKey))
+        throw new ArgumentException("api key was null or missing", apiKey);
+
       Enabled = true;
-      Synchronous = false;
       _collector = new Collector(apiKey);
+
+      var validationOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture;
+      _validateMetric = new Regex(@"^([\d\w\-_]+\.)*[\d\w\-_]+$", validationOptions);
     }
 
-    public void Gauge(String metricName, float value, DateTime? time = null)
+    public void Gauge(String metricName, float value, DateTime? time = null, int count = 1)
     {
       try
         {
           if (!Enabled || !ValidateMetricName(metricName)) return;
-          var t = time == null ? DateTime.Now : (DateTime)time;
-          _collector.SendMessage(String.Format("gauge {0} {1} {2}", metricName, value, t.ToEpoch()), Synchronous);
+          int metricTime = (time ?? DateTime.Now).ToEpoch();
+          _collector.SendMessage(String.Format("gauge {0} {1} {2} {3}", metricName, value, metricTime, count));
         }
       catch (Exception e)
         {
@@ -76,13 +81,13 @@ namespace Instrumental
       Time(metricName, action, 1000);
     }
 
-    public void Increment(String metricName, float value = 1, DateTime? time = null)
+    public void Increment(String metricName, float value = 1, DateTime? time = null, int count = 1)
     {
       try
         {
           if (!Enabled || !ValidateMetricName(metricName)) return;
-          var t = time == null ? DateTime.Now : (DateTime)time;
-          _collector.SendMessage(String.Format("increment {0} {1} {2}", metricName, value, t.ToEpoch()), Synchronous);
+          int metricTime = (time ?? DateTime.Now).ToEpoch();
+          _collector.SendMessage(String.Format("increment {0} {1} {2} {3}", metricName, value, metricTime, count));
         }
       catch (Exception e)
         {
@@ -95,8 +100,8 @@ namespace Instrumental
       try
         {
           if (!Enabled || !ValidateNote(message)) return;
-          var t = time == null ? DateTime.Now : (DateTime)time;
-          _collector.SendMessage(String.Format("notice {0} {1} {2}", t.ToEpoch(), durationInSeconds, message), Synchronous);
+          int metricTime = (time ?? DateTime.Now).ToEpoch();
+          _collector.SendMessage(String.Format("notice {0} {1} {2}", metricTime, durationInSeconds, message));
         }
       catch (Exception e)
         {
@@ -113,9 +118,8 @@ namespace Instrumental
 
     private bool ValidateMetricName(String metricName)
     {
-      var validMetric = Regex.IsMatch(metricName, @"^([\d\w\-_])+\.*[\d\w\-_]+$", RegexOptions.IgnoreCase);
-
-      if (validMetric) return true;
+      if (_validateMetric.IsMatch(metricName))
+        return true;
 
       Increment("agent.invalid_metric");
       _log.WarnFormat("Invalid metric name: {0}", metricName);
