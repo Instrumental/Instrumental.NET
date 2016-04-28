@@ -24,14 +24,13 @@ namespace Instrumental
       agent = new Agent(testKey);
     }
 
-    // Despite the compiler warning, you cannot use OneTimeTearDown here, it will not fire
-    // Thanks, NUnit.
-    [TestFixtureTearDown]
-    public void FixtureTearDown()
+    [TearDown]
+    public void Flush()
     {
-      // so that all the background workers finish
-      // Collector.Flush would be great here
-      System.Threading.Thread.Sleep(2000);
+      while(agent.MessageCount > 0)
+        {
+          System.Threading.Thread.Sleep(10);
+        }
     }
 
     [Test]
