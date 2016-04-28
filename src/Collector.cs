@@ -96,6 +96,8 @@ namespace Instrumental
               if(!Authenticate(socket))
                 {
                   socket.Close();
+                  // Throttle calls to authenticate so that you do not flood the buffer if collector is down/slow for a few seconds.
+                  // Ultimately should share logic with the backoff stuff below, but did not want to just throw here.
                   Thread.Sleep(5000);
                   continue;
                 }
@@ -142,7 +144,7 @@ namespace Instrumental
 
     private bool Authenticate(Socket socket)
     {
-      var data = System.Text.Encoding.ASCII.GetBytes("hello version csharp/0.2.0\n");
+      var data = System.Text.Encoding.ASCII.GetBytes("hello version dotnet/0.2.0\n");
       socket.Send(data);
       if(!ReceiveOk(socket)) return false;
       data = System.Text.Encoding.ASCII.GetBytes($"authenticate {_apiKey}\n");
