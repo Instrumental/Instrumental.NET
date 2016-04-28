@@ -43,10 +43,8 @@ namespace Instrumental
       Enabled = true;
       _collector = new Collector(apiKey);
 
-      _validateMetric = new Regex(
-                                  @"^([\d\w\-_]+\.)*[\d\w\-_]+$",
-                                  RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture
-                                  );
+      var validationOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture;
+      _validateMetric = new Regex(@"^([\d\w\-_]+\.)*[\d\w\-_]+$", validationOptions);
     }
 
     public void Gauge(String metricName, float value, DateTime? time = null, int count = 1)
