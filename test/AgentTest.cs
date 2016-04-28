@@ -31,7 +31,7 @@ namespace Instrumental
     {
       // so that all the background workers finish
       // Collector.Flush would be great here
-      System.Threading.Thread.Sleep(500);
+      System.Threading.Thread.Sleep(2000);
     }
 
     [Test]

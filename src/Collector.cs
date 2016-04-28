@@ -93,15 +93,15 @@ namespace Instrumental
           try
             {
               socket = Connect();
-
               if(!Authenticate(socket))
                 {
+                  socket.Close();
                   Thread.Sleep(5000);
                   continue;
                 }
-
               SendQueuedMessages(socket);
               failures = 0;
+              socket.Close();
             }
           catch (Exception e)
             {
@@ -142,10 +142,10 @@ namespace Instrumental
 
     private bool Authenticate(Socket socket)
     {
-      var data = System.Text.Encoding.ASCII.GetBytes("hello version 1.0\n");
+      var data = System.Text.Encoding.ASCII.GetBytes("hello version csharp/0.2.0\n");
       socket.Send(data);
       if(!ReceiveOk(socket)) return false;
-      data = System.Text.Encoding.ASCII.GetBytes(String.Format("authenticate {0}\n", _apiKey));
+      data = System.Text.Encoding.ASCII.GetBytes($"authenticate {_apiKey}\n");
       socket.Send(data);
       return ReceiveOk(socket);
     }
@@ -156,7 +156,6 @@ namespace Instrumental
       socket.Receive(buffer);
       // I'm not including all of LINQ for this shit
       // return InstrumentalOk.SequenceEqual(buffer);
-
       return InstrumentalOk[0] == buffer[0] && InstrumentalOk[1] == buffer[1] && InstrumentalOk[2] == buffer[2];
     }
 
