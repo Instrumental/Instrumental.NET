@@ -17,9 +17,19 @@ using System;
 
 namespace Instrumental
 {
+  /// <summary>
+  ///   Extensions to core classes to make our lives easier
+  /// </summary>
   public static class Extensions
   {
+    /// <summary>
+    ///   The time at the start of the Unixverse.
+    /// </summary>
     public static readonly DateTime EpochStart = new DateTime(1970, 1, 1);
+
+    /// <summary>
+    ///   Convert a DateTime to the number of the seconds since the Epoch
+    /// </summary>
     public static int ToEpoch(this DateTime dt)
     {
       return (int)(dt.ToUniversalTime() - EpochStart).TotalSeconds;

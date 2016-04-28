@@ -19,14 +19,23 @@ using Common.Logging;
 
 namespace Instrumental
 {
+  /// <summary>
+  ///   Instrumental Agent used to send performance and other metrics to http://instrumentalapp.com
+  /// </summary>
   public class Agent
   {
+    /// <summary>
+    ///   Enable/disable the agent.  This enables you to block sending of metrics to Instrumental without having to change your code.
+    /// </summary>
     public bool Enabled { get; set; }
 
     private readonly Collector _collector;
     private static readonly ILog _log = LogManager.GetCurrentClassLogger();
     private readonly Regex _validateMetric;
 
+    /// <summary>
+    ///   The number of messages waiting to be sent to Instrumental
+    /// </summary>
     public int MessageCount
     {
       get
@@ -35,6 +44,10 @@ namespace Instrumental
         }
     }
 
+    /// <summary>
+    ///   Create a new Agent
+    /// </summary>
+    /// <param name="apiKey">Your project API key from instrumentalapp.com</param>
     public Agent(String apiKey)
     {
       if(string.IsNullOrEmpty(apiKey))
@@ -47,6 +60,14 @@ namespace Instrumental
       _validateMetric = new Regex(@"^([\d\w\-_]+\.)*[\d\w\-_]+$", validationOptions);
     }
 
+    /// <summary>
+    ///   Measure the average value of something in your code, like response time.
+    /// </summary>
+    /// <param name="metricName">The name of the metric to send.  Letters, numbers, and dots.</param>
+    /// <param name="value">The value to record.</param>
+    /// <param name="time">The exact time at which the event happened.  You probably want the default.</param>
+    /// <param name="count">The number of events which this represents.  You almost certainly want the default.</param>
+    /// <returns>The value being passed in via value, or null if something bad happened.</returns>
     public float? Gauge(String metricName, float value, DateTime? time = null, int count = 1)
     {
       try
@@ -64,6 +85,12 @@ namespace Instrumental
       return null;
     }
 
+    /// <summary>
+    ///   Measure the duration of an action in seconds.
+    /// </summary>
+    /// <param name="metricName">The name of the metric to send.  Letters, numbers, and dots.</param>
+    /// <param name="action">The action being measured</param>
+    /// <returns>The result of executing the action.</returns>
     public T Time<T>(String metricName, Func<T> action)
     {
       return ActuallyTime(metricName, action);
@@ -84,11 +111,25 @@ namespace Instrumental
         }
     }
 
+    /// <summary>
+    ///   Measure the duration of an action in milliseconds.
+    /// </summary>
+    /// <param name="metricName">The name of the metric to send.  Letters, numbers, and dots.</param>
+    /// <param name="action">The action being measured</param>
+    /// <returns>The result of executing the action.</returns>
     public T TimeMs<T>(String metricName, Func<T> action)
     {
       return ActuallyTime(metricName, action, 1000);
     }
 
+    /// <summary>
+    ///   Measure an occurance of something in your code.
+    /// </summary>
+    /// <param name="metricName">The name of the metric to send.  Letters, numbers, and dots.</param>
+    /// <param name="value">The value to record.</param>
+    /// <param name="time">The exact time at which the event happened.  You probably want the default.</param>
+    /// <param name="count">The number of events which this represents.  You almost certainly want the default.</param>
+    /// <returns>The value being passed in via value, or null if something bad happened.</returns>
     public float? Increment(String metricName, float value = 1, DateTime? time = null, int count = 1)
     {
       try
@@ -106,6 +147,13 @@ namespace Instrumental
       return null;
     }
 
+    /// <summary>
+    ///   Tag a point or duration in time with a note, like a deploy or a service outage.
+    /// </summary>
+    /// <param name="message">The note you want to show up in your metrics.  A sentence or less, no newlines.</param>
+    /// <param name="time">The exact time at which the event happened.  You probably want the default.</param>
+    /// <param name="duration">The amount of time the event took.</param>
+    /// <returns>The message being passed in via message, or null if something bad happened.</returns>
     public String Notice(String message, DateTime? time = null, TimeSpan? duration = null)
     {
       try
