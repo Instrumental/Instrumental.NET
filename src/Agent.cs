@@ -25,6 +25,11 @@ namespace Instrumental
   public class Agent
   {
     /// <summary>
+    ///   The agent version, according to the agent.  See script/check_version for things that must match this
+    /// </summary>
+    public static readonly String AgentVersion = "0.2.0";
+
+    /// <summary>
     ///   Enable/disable the agent.  This enables you to block sending of metrics to Instrumental without having to change your code.
     /// </summary>
     public bool Enabled { get; set; }

@@ -138,7 +138,7 @@ namespace Instrumental
 
     private void Authenticate(Socket socket)
     {
-      var data = System.Text.Encoding.ASCII.GetBytes("hello version dotnet/0.2.0\n");
+      var data = System.Text.Encoding.ASCII.GetBytes($"hello version dotnet/{Agent.AgentVersion}\n");
       socket.Send(data);
       if(!ReceiveOk(socket)) throw new Exception("Instrumental Authentication Failed");
       data = System.Text.Encoding.ASCII.GetBytes($"authenticate {_apiKey}\n");
