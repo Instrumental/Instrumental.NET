@@ -93,17 +93,11 @@ namespace Instrumental
           try
             {
               socket = Connect();
-              if(!Authenticate(socket))
-                {
-                  socket.Close();
-                  // Throttle calls to authenticate so that you do not flood the buffer if collector is down/slow for a few seconds.
-                  // Ultimately should share logic with the backoff stuff below, but did not want to just throw here.
-                  Thread.Sleep(5000);
-                  continue;
-                }
+              Authenticate(socket);
               SendQueuedMessages(socket);
-              failures = 0;
+              socket.Shutdown(SocketShutdown.Both);
               socket.Close();
+              failures = 0;
             }
           catch (Exception e)
             {
@@ -142,14 +136,14 @@ namespace Instrumental
         }
     }
 
-    private bool Authenticate(Socket socket)
+    private void Authenticate(Socket socket)
     {
       var data = System.Text.Encoding.ASCII.GetBytes("hello version dotnet/0.2.0\n");
       socket.Send(data);
-      if(!ReceiveOk(socket)) return false;
+      if(!ReceiveOk(socket)) throw new Exception("Instrumental Authentication Failed");
       data = System.Text.Encoding.ASCII.GetBytes($"authenticate {_apiKey}\n");
       socket.Send(data);
-      return ReceiveOk(socket);
+      if(!ReceiveOk(socket)) throw new Exception("Instrumental AuthenticationFailed");
     }
 
     private bool ReceiveOk(Socket socket)
