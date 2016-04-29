@@ -58,7 +58,7 @@ namespace Instrumental
       var actionResult2 = "things";
       Func<string> action2 = () => { return actionResult2; };
       Assert.AreEqual(actionResult2, agent.Time("csharp.TestReturns", action2));
-      Assert.AreEqual(actionResult2, agent.Time("csharp.TestReturns", () => { return actionResult2; }));;
+      Assert.AreEqual(actionResult2, agent.Time("csharp.TestReturns", () => { return actionResult2; }));
     }
 
     [Test]

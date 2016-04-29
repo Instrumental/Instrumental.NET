@@ -95,8 +95,7 @@ namespace Instrumental
               socket = Connect();
               Authenticate(socket);
               SendQueuedMessages(socket);
-              socket.Shutdown(SocketShutdown.Both);
-              socket.Close();
+              CloseSocket(socket);
               failures = 0;
             }
           catch (Exception e)
@@ -105,8 +104,7 @@ namespace Instrumental
               if (socket != null)
                 {
                   try {
-                    socket.Shutdown(SocketShutdown.Both);
-                    socket.Close();
+                    CloseSocket(socket);
                   } catch {}
                   socket = null;
                 }
@@ -125,7 +123,7 @@ namespace Instrumental
           if (_currentCommand == null)
             _currentCommand = _messages.Take();
 
-          if (IsSocketDisconnected(socket))
+          if (!IsSocketConnected(socket))
             throw new Exception("Disconnected");
 
           _log.DebugFormat("Sending: {0}", _currentCommand);
@@ -143,7 +141,7 @@ namespace Instrumental
       if(!ReceiveOk(socket)) throw new Exception("Instrumental Authentication Failed");
       data = System.Text.Encoding.ASCII.GetBytes($"authenticate {_apiKey}\n");
       socket.Send(data);
-      if(!ReceiveOk(socket)) throw new Exception("Instrumental AuthenticationFailed");
+      if(!ReceiveOk(socket)) throw new Exception("Instrumental Authentication Failed");
     }
 
     private bool ReceiveOk(Socket socket)
@@ -164,25 +162,29 @@ namespace Instrumental
       return socket;
     }
 
-    private static bool IsSocketDisconnected (Socket socket)
+    private static bool IsSocketConnected(Socket socket)
     {
-      // Is there any data available?
-      byte[] buffer = null;
-      while (socket.Poll(1, SelectMode.SelectRead))
-        {
-          // If no data is available then socket disconnected
-          if (socket.Available == 0)
-            return true;
+      bool eitherHasDataOrIsDead = socket.Poll(1000, SelectMode.SelectRead);
+      bool hasNoData = (socket.Available == 0);
 
-          // Clear socket data; we don't care what InstrumentApp sends
-          buffer = buffer ?? new byte[Math.Min(1024, socket.Available)];
-          do
-            {
-              socket.Receive(buffer);
-            }
-          while (socket.Available != 0);
+      return !(eitherHasDataOrIsDead && hasNoData);
+    }
+
+    private void CloseSocket(Socket socket)
+    {
+      socket.Shutdown(SocketShutdown.Both);
+      try
+        {
+          int read = 0;
+          byte[] garbage = new byte[1024];
+          while( (read = socket.Receive(garbage)) > 0 )
+            {}
         }
-      return false;
+      catch(Exception e)
+        {
+          _log.Info("Exception while closing socket: " + e.Message);
+        }
+      socket.Close();
     }
   }
 }
