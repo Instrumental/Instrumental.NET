@@ -16,7 +16,7 @@ If you are using NuGet, add Instrumental.NET to your packages.config:
 
 Or, download [Instrumental.dll](https://github.com/Instrumental/Instrumental.NET/releases/tag/v0.2.0).
 
-Visit [instrumentalapp.com](https://instrumentalapp.com) and create an account, then initialize the agent with your API key, found in the Docs section.
+Visit [instrumentalapp.com](https://instrumentalapp.com) and create an account, then initialize the agent with your API token, found in the Docs section.
 
 Simple Example
 ==============
@@ -26,7 +26,7 @@ Here are the basic Instrumental monitoring commands:
 ```csharp
 using Instrumental;
 
-var agent = new Agent("your api key here");
+var agent = new Agent("project api token here");
 
 agent.Increment("myapp.logins");
 agent.Gauge("myapp.server1.free_ram", 1234567890);
