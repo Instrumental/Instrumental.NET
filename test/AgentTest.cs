@@ -50,6 +50,12 @@ namespace Instrumental
     }
 
     [Test]
+    public void TestTimeVoid()
+    {
+      agent.Time("csharp.TestTimeVoid", () => { System.Threading.Thread.Sleep(100); });
+    }
+
+    [Test]
     public void TimeReturnsActionResult()
     {
       var actionResult = 27;
@@ -65,6 +71,12 @@ namespace Instrumental
     public void TestTimeMs()
     {
       agent.TimeMs("csharp.TestTimeMs", () => { System.Threading.Thread.Sleep(100); return 1; });
+    }
+
+    [Test]
+    public void TestTimeMsVoid()
+    {
+      agent.TimeMs("csharp.TestTimeMsVoid", () => { System.Threading.Thread.Sleep(100); });
     }
 
     [Test]

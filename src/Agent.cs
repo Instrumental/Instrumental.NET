@@ -101,6 +101,37 @@ namespace Instrumental
       return ActuallyTime(metricName, action);
     }
 
+    /// <summary>
+    ///   Measure the duration of an action in seconds.
+    /// </summary>
+    /// <param name="metricName">The name of the metric to send.  Letters, numbers, and dots.</param>
+    /// <param name="action">The action being measured</param>
+    public void Time(String metricName, Action action)
+    {
+      ActuallyTime(metricName, action);
+    }
+
+    /// <summary>
+    ///   Measure the duration of an action in milliseconds.
+    /// </summary>
+    /// <param name="metricName">The name of the metric to send.  Letters, numbers, and dots.</param>
+    /// <param name="action">The action being measured</param>
+    /// <returns>The result of executing the action.</returns>
+    public T TimeMs<T>(String metricName, Func<T> action)
+    {
+      return ActuallyTime(metricName, action, 1000);
+    }
+
+    /// <summary>
+    ///   Measure the duration of an action in milliseconds.
+    /// </summary>
+    /// <param name="metricName">The name of the metric to send.  Letters, numbers, and dots.</param>
+    /// <param name="action">The action being measured</param>
+    public void TimeMs(String metricName, Action action)
+    {
+      ActuallyTime(metricName, action, 1000);
+    }
+
     private T ActuallyTime<T>(String metricName, Func<T> action, float durationMultiplier = 1)
     {
       var start = DateTime.Now;
@@ -116,15 +147,19 @@ namespace Instrumental
         }
     }
 
-    /// <summary>
-    ///   Measure the duration of an action in milliseconds.
-    /// </summary>
-    /// <param name="metricName">The name of the metric to send.  Letters, numbers, and dots.</param>
-    /// <param name="action">The action being measured</param>
-    /// <returns>The result of executing the action.</returns>
-    public T TimeMs<T>(String metricName, Func<T> action)
+    private void ActuallyTime(String metricName, Action action, float durationMultiplier = 1)
     {
-      return ActuallyTime(metricName, action, 1000);
+      var start = DateTime.Now;
+      try
+        {
+          action();
+        }
+      finally
+        {
+          var end = DateTime.Now;
+          var duration = end - start;
+          Gauge(metricName, (float)duration.TotalSeconds * durationMultiplier);
+        }
     }
 
     /// <summary>
