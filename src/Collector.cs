@@ -136,11 +136,16 @@ namespace Instrumental
 
     private void Authenticate(Socket socket)
     {
-      var data = System.Text.Encoding.ASCII.GetBytes($"hello version dotnet/{Agent.AgentVersion}\n");
+      var helloString = $"hello version dotnet/{Agent.AgentVersion}\n";
+      var authenticateString = $"authenticate {_apiKey}\n";
+
+      var data = System.Text.Encoding.ASCII.GetBytes(helloString + authenticateString);
       socket.Send(data);
+
+      //hello ok?
       if(!ReceiveOk(socket)) throw new Exception("Instrumental Authentication Failed");
-      data = System.Text.Encoding.ASCII.GetBytes($"authenticate {_apiKey}\n");
-      socket.Send(data);
+
+      //authenticate ok?
       if(!ReceiveOk(socket)) throw new Exception("Instrumental Authentication Failed");
     }
 
