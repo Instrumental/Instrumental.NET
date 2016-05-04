@@ -1,7 +1,0 @@
-#!/bin/bash
-set -e
-cd "$(dirname "$0")/.."
-
-type mono || brew install mono
-
-script/nuget install packages.config -o vendor
