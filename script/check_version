@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+cd "$(dirname "$0")/.."
+
+echo
+echo "Built packages have the following versions:"
+echo $(cat CHANGELOG.md | sed -n 's/.*\(\([[:digit:]]\.\)\{2\}[[:digit:]]\).*/\1/p' | head -n 1
+) -- CHANGELOG.md
+echo $(csharp script/check_agent_version.cs) ' -- Agent constant(from src/Agent.cs)'
+echo $(monodis --assembly bin/Instrumental.dll | grep Version | sed -n 's/.*\(\([[:digit:]]\.\)\{3\}[[:digit:]]\).*/\1/p') -- Instrumental.dll '(from src/Properties/AssemblyInfo.cs)'
+echo $(ls bin | sed -n 's/Instrumental\.\(\([[:digit:]]\.\)\{2\}[[:digit:]]\)\.nupkg/\1/p' | tail -n 1) -- Nuget Package version '(Instrumental.nuspec)'
+echo "If these do not match, please correct the source and rebuild"
