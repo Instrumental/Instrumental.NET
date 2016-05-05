@@ -73,7 +73,7 @@ namespace Instrumental
     /// <param name="time">The exact time at which the event happened.  You probably want the default.</param>
     /// <param name="count">The number of events which this represents.  You almost certainly want the default.</param>
     /// <returns>The value being passed in via value, or null if something bad happened.</returns>
-    public float? Gauge(String metricName, float value, DateTime? time = null, int count = 1)
+    public double? Gauge(String metricName, double value, DateTime? time = null, int count = 1)
     {
       try
         {
@@ -143,7 +143,7 @@ namespace Instrumental
         {
           var end = DateTime.Now;
           var duration = end - start;
-          Gauge(metricName, (float)duration.TotalSeconds * durationMultiplier);
+          Gauge(metricName, duration.TotalSeconds * durationMultiplier);
         }
     }
 
