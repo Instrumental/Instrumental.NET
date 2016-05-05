@@ -38,7 +38,7 @@ String actionResult = agent.Time("myapp.expensive_operation", action);
 Worker Example
 ==============
 
-You can easily use Instrumental Agent with background workers too, in this somewhat contrived timing example.  Note that Functions passed to Time must return a value or be defined as a Func<T> with a type:
+You can easily use Instrumental Agent with background workers too, in this somewhat contrived timing example:
 
 ```csharp
 using Instrumental;
