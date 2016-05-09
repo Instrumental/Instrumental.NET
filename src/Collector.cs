@@ -43,7 +43,7 @@ namespace Instrumental
     {
       get
         {
-          return _messages.Count + (c == null) ? 0 : 1;
+          return _messages.Count + ((_currentCommand == null) ? 0 : 1);
         }
     }
 
