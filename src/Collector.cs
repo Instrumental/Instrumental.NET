@@ -37,13 +37,13 @@ namespace Instrumental
 
     private static readonly string InstrumentalAddress = "collector.instrumentalapp.com";
     private static readonly int InstrumentalPort = 8000;
-    private static readonly byte[] InstrumentalOk = {111, 107, 10};
+    private static readonly byte[] InstrumentalOk = System.Text.Encoding.ASCII.GetBytes("ok\n");
 
     public int MessageCount
     {
       get
         {
-          return _messages.Count;
+          return _messages.Count + (c == null) ? 0 : 1;
         }
     }
 
