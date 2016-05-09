@@ -6,7 +6,7 @@
     <authors>Nathan Acuff</authors>
     <owners>Nathan Acuff</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
-    <projectUrl>https://github.com/Instrumental/Instrumental.NET</projectUrl>
+    <projectUrl>https://github.com/Instrumental/instrumental_agent-csharp</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Custom metric monitoring for .NET applications via Instrumental</description>
     <releaseNotes>Initial release and packaging improvements</releaseNotes>
