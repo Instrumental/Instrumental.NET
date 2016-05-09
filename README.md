@@ -14,7 +14,7 @@ If you are using NuGet, add Instrumental.NET to your packages.config:
 <id="Instrumental" version="0.2.0" targetFramework="net45" />
 ```
 
-Or, download [Instrumental.dll](https://github.com/Instrumental/Instrumental.NET/releases/latest).
+Or, download [Instrumental.dll](https://github.com/Instrumental/instrumental_agent-csharp/releases/latest).
 
 Visit [instrumentalapp.com](https://instrumentalapp.com) and create an account, then initialize the agent with your API token, found in the Docs section.
 
@@ -38,7 +38,7 @@ String actionResult = agent.Time("myapp.expensive_operation", action);
 Worker Example
 ==============
 
-You can easily use Instrumental Agent with background workers too, in this somewhat contrived timing example.  Note that Functions passed to Time must return a value or be defined as a Func<T> with a type:
+You can easily use Instrumental Agent with background workers too, in this somewhat contrived timing example:
 
 ```csharp
 using Instrumental;
