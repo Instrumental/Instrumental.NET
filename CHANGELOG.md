@@ -1,3 +1,8 @@
+### 1.0.0 [May 9, 2016]
+* Improvements in authentication mechanism
+* Time() can now be used with Actions (which return void)
+* MessageCount no longer reports 0 when a message in the process of being sent
+
 ### 0.2.0 [April 27, 2016]
 * Modify API for most existing function to match other agents
 * Make most Instrumental calls return the value being sent, or the action result for Time()
