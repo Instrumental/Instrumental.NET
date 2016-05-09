@@ -11,7 +11,7 @@ Getting Started
 If you are using NuGet, add Instrumental.NET to your packages.config:
 
 ```xml
-<id="Instrumental" version="0.2.0" targetFramework="net45" />
+<id="Instrumental" version="1.0.0" targetFramework="net45" />
 ```
 
 Or, download [Instrumental.dll](https://github.com/Instrumental/instrumental_agent-csharp/releases/latest).
