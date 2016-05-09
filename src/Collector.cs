@@ -180,9 +180,8 @@ namespace Instrumental
       socket.Shutdown(SocketShutdown.Both);
       try
         {
-          int read = 0;
           byte[] garbage = new byte[1024];
-          while( (read = socket.Receive(garbage)) > 0 )
+          while((socket.Receive(garbage)) > 0)
             {}
         }
       catch(Exception e)

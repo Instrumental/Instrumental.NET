@@ -26,7 +26,7 @@ echo "------------------------------------------------------------"
 echo Your test output actually starts here
 echo Please go to your test project and look for the resultant metrics:
 echo csharp.TestGauge, csharp.TestIncrement, csharp.TestTime, csharp.TestTimeMS, a notice
-echo All those things I ust listed, but with "past" on the end
+echo All those things I just listed, but with "past" on the end
 echo "------------------------------------------------------------"
 echo
 

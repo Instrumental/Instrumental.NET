@@ -73,7 +73,7 @@ namespace Instrumental
     /// <param name="time">The exact time at which the event happened.  You probably want the default.</param>
     /// <param name="count">The number of events which this represents.  You almost certainly want the default.</param>
     /// <returns>The value being passed in via value, or null if something bad happened.</returns>
-    public float? Gauge(String metricName, float value, DateTime? time = null, int count = 1)
+    public double? Gauge(String metricName, double value, DateTime? time = null, int count = 1)
     {
       try
         {
@@ -132,7 +132,7 @@ namespace Instrumental
       ActuallyTime(metricName, action, 1000);
     }
 
-    private T ActuallyTime<T>(String metricName, Func<T> action, float durationMultiplier = 1)
+    private T ActuallyTime<T>(String metricName, Func<T> action, double durationMultiplier = 1)
     {
       var start = DateTime.Now;
       try
@@ -143,11 +143,11 @@ namespace Instrumental
         {
           var end = DateTime.Now;
           var duration = end - start;
-          Gauge(metricName, (float)duration.TotalSeconds * durationMultiplier);
+          Gauge(metricName, duration.TotalSeconds * durationMultiplier);
         }
     }
 
-    private void ActuallyTime(String metricName, Action action, float durationMultiplier = 1)
+    private void ActuallyTime(String metricName, Action action, double durationMultiplier = 1)
     {
       var start = DateTime.Now;
       try
@@ -158,7 +158,7 @@ namespace Instrumental
         {
           var end = DateTime.Now;
           var duration = end - start;
-          Gauge(metricName, (float)duration.TotalSeconds * durationMultiplier);
+          Gauge(metricName, duration.TotalSeconds * durationMultiplier);
         }
     }
 
@@ -170,7 +170,7 @@ namespace Instrumental
     /// <param name="time">The exact time at which the event happened.  You probably want the default.</param>
     /// <param name="count">The number of events which this represents.  You almost certainly want the default.</param>
     /// <returns>The value being passed in via value, or null if something bad happened.</returns>
-    public float? Increment(String metricName, float value = 1, DateTime? time = null, int count = 1)
+    public double? Increment(String metricName, double value = 1, DateTime? time = null, int count = 1)
     {
       try
         {
