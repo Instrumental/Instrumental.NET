@@ -35,11 +35,15 @@ namespace Instrumental
     private bool _queueFullWarned;
     private static readonly ILog _log = LogManager.GetCurrentClassLogger();
 
+    private static readonly string InstrumentalAddress = "collector.instrumentalapp.com";
+    private static readonly int InstrumentalPort = 8000;
+    private static readonly byte[] InstrumentalOk = System.Text.Encoding.ASCII.GetBytes("ok\n");
+
     public int MessageCount
     {
       get
         {
-          return _messages.Count;
+          return _messages.Count + (c == null) ? 0 : 1;
         }
     }
 
@@ -79,17 +83,20 @@ namespace Instrumental
 
     private void WorkerOnDoWork(object sender, DoWorkEventArgs doWorkEventArgs)
     {
+      var failures = 0;
+      Socket socket = null;
+
+      // This is not really the worker loop, it is just very careful connect/authenticate
+      // If you want the worker loop, look at SendQueuedMessages
       while (!_worker.CancellationPending)
         {
-          Socket socket = null;
-          var failures = 0;
-
           try
             {
               socket = Connect();
               Authenticate(socket);
-              failures = 0;
               SendQueuedMessages(socket);
+              CloseSocket(socket);
+              failures = 0;
             }
           catch (Exception e)
             {
@@ -97,7 +104,7 @@ namespace Instrumental
               if (socket != null)
                 {
                   try {
-                    socket.Disconnect(false);
+                    CloseSocket(socket);
                   } catch {}
                   socket = null;
                 }
@@ -116,7 +123,7 @@ namespace Instrumental
           if (_currentCommand == null)
             _currentCommand = _messages.Take();
 
-          if (IsSocketDisconnected(socket))
+          if (!IsSocketConnected(socket))
             throw new Exception("Disconnected");
 
           _log.DebugFormat("Sending: {0}", _currentCommand);
@@ -129,40 +136,60 @@ namespace Instrumental
 
     private void Authenticate(Socket socket)
     {
-      var data = System.Text.Encoding.ASCII.GetBytes("hello version 1.0\n");
+      var helloString = $"hello version dotnet/{Agent.AgentVersion}\n";
+      var authenticateString = $"authenticate {_apiKey}\n";
+
+      var data = System.Text.Encoding.ASCII.GetBytes(helloString + authenticateString);
       socket.Send(data);
-      data = System.Text.Encoding.ASCII.GetBytes(String.Format("authenticate {0}\n", _apiKey));
-      socket.Send(data);
+
+      //hello ok?
+      if(!ReceiveOk(socket)) throw new Exception("Instrumental Authentication Failed");
+
+      //authenticate ok?
+      if(!ReceiveOk(socket)) throw new Exception("Instrumental Authentication Failed");
+    }
+
+    private bool ReceiveOk(Socket socket)
+    {
+      byte[] buffer = new byte[3];
+      socket.Receive(buffer);
+      // I'm not including all of LINQ for this shit
+      // return InstrumentalOk.SequenceEqual(buffer);
+      return InstrumentalOk[0] == buffer[0] && InstrumentalOk[1] == buffer[1] && InstrumentalOk[2] == buffer[2];
     }
 
     private static Socket Connect()
     {
       var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
       _log.Info("Connecting to collector.");
-      socket.Connect("collector.instrumentalapp.com", 8000);
+      socket.Connect(InstrumentalAddress, InstrumentalPort);
       _log.Info("Connected to collector.");
       return socket;
     }
 
-    private static bool IsSocketDisconnected (Socket socket)
+    private static bool IsSocketConnected(Socket socket)
     {
-      // Is there any data available?
-      byte[] buffer = null;
-      while (socket.Poll(1, SelectMode.SelectRead))
-        {
-          // If no data is available then socket disconnected
-          if (socket.Available == 0)
-            return true;
+      bool eitherHasDataOrIsDead = socket.Poll(1000, SelectMode.SelectRead);
+      bool hasNoData = (socket.Available == 0);
 
-          // Clear socket data; we don't care what InstrumentApp sends
-          buffer = buffer ?? new byte[Math.Min(1024, socket.Available)];
-          do
-            {
-              socket.Receive(buffer);
-            }
-          while (socket.Available != 0);
+      return !(eitherHasDataOrIsDead && hasNoData);
+    }
+
+    private void CloseSocket(Socket socket)
+    {
+      socket.Shutdown(SocketShutdown.Both);
+      try
+        {
+          int read = 0;
+          byte[] garbage = new byte[1024];
+          while( (read = socket.Receive(garbage)) > 0 )
+            {}
         }
-      return false;
+      catch(Exception e)
+        {
+          _log.Info("Exception while closing socket: " + e.Message);
+        }
+      socket.Close();
     }
   }
 }

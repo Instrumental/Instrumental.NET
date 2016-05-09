@@ -4,8 +4,6 @@ namespace Instrumental
   using System.IO;
   using NUnit.Framework;
 
-
-
   [TestFixture]
   public class AgentTest
   {
@@ -24,14 +22,13 @@ namespace Instrumental
       agent = new Agent(testKey);
     }
 
-    // Despite the compiler warning, you cannot use OneTimeTearDown here, it will not fire
-    // Thanks, NUnit.
-    [TestFixtureTearDown]
-    public void FixtureTearDown()
+    [TearDown]
+    public void Flush()
     {
-      // so that all the background workers finish
-      // Collector.Flush would be great here
-      System.Threading.Thread.Sleep(500);
+      while(agent.MessageCount > 0)
+        {
+          System.Threading.Thread.Sleep(10);
+        }
     }
 
     [Test]
@@ -61,7 +58,7 @@ namespace Instrumental
       var actionResult2 = "things";
       Func<string> action2 = () => { return actionResult2; };
       Assert.AreEqual(actionResult2, agent.Time("csharp.TestReturns", action2));
-      Assert.AreEqual(actionResult2, agent.Time("csharp.TestReturns", () => { return actionResult2; }));;
+      Assert.AreEqual(actionResult2, agent.Time("csharp.TestReturns", () => { return actionResult2; }));
     }
 
     [Test]
