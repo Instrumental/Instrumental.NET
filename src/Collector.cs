@@ -136,7 +136,7 @@ namespace Instrumental
 
     private void Authenticate(Socket socket)
     {
-      var helloString = $"hello version dotnet/{Agent.AgentVersion}\n";
+      var helloString = $"hello version dotnet/instrumental_agent/{Agent.AgentVersion}\n";
       var authenticateString = $"authenticate {_apiKey}\n";
 
       var data = System.Text.Encoding.ASCII.GetBytes(helloString + authenticateString);
