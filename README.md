@@ -49,6 +49,21 @@ bg.DoWork += delegate { agent.Time("csharp.worker.TimedWorker", () => { System.T
 bg.RunWorkerAsync();
 ```
 
+Developing/Building/Releasing this Agent
+========================================
+
+During development, you will need these scripts:
+ - `script/setup`: prepare your environment for working with the agent
+ - `script/test`: compile the agent and run the tests
+ - `script/build`: compile the agent and build the nuget package
+
+To release a new version of the agent, do the following:
+ - Do the tests pass?
+ - Use `script/build` to build the nuget package.  It will help you to update the version number in all the appropriate places.
+ - Use `./script/nuget push bin/instrumental_agent.<your version here>.nupkg` to push to nuget.  You may need to set your api key with `./script/nuget setApiKey <your key here>`
+ - Go to https://www.nuget.org/packages/instrumental_agent/<your version here>/Edit to update package release notes, if necessary.
+
+
 Links
 =====
 

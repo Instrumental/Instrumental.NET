@@ -1,5 +1,5 @@
-### UNRELEASED
-* make agent string easier to digest for Instrumental
+### 1.1.0 [August 8, 2016]
+* Make agent string more consistent with other Instrumental agents
 
 ### 1.0.0 [May 9, 2016]
 * Improvements in authentication mechanism
