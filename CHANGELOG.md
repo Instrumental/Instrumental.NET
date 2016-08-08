@@ -1,3 +1,6 @@
+### UNRELEASED
+* make agent string easier to digest for Instrumental
+
 ### 1.0.0 [May 9, 2016]
 * Improvements in authentication mechanism
 * Time() can now be used with Actions (which return void)
