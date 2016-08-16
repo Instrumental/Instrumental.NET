@@ -113,6 +113,12 @@ TestIncrementPast", 13, pastEventTime));
     }
 
     [Test]
+    public void InvalidMetricNameReturnsNullUnicode()
+    {
+            Assert.AreEqual(null, agent.Increment("東京.怪獣", 13, pastEventTime));
+    }
+
+    [Test]
     public void TestNoticeAtATime()
     {
       agent.Notice("C# test notice FROM THE PAST using TimeSpan", pastEventTime, TimeSpan.FromMinutes(3));

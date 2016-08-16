@@ -62,7 +62,8 @@ namespace Instrumental
       _collector = new Collector(apiKey);
 
       var validationOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture;
-      _validateMetric = new Regex(@"^([\d\w\-_]+\.)*[\d\w\-_]+$", validationOptions);
+      _validateMetric = new Regex(@"^([a-zA-Z0-9\-_]+\.)*[a-zA-Z0-9\-_]+$", validationOptions);
+
     }
 
     /// <summary>
