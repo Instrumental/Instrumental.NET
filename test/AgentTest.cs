@@ -102,20 +102,26 @@ namespace Instrumental
     public void DisabledIncrementReturnsValue()
     {
       agent.Enabled = false;
-      Assert.AreEqual(13, agent.Increment("csharp.TestIncrementPast", 13, pastEventTime));
+      Assert.AreEqual(13, agent.Increment("csharp.TestIncrementPast", 13));
     }
 
     [Test]
     public void InvalidMetricNameReturnsNull()
     {
       Assert.AreEqual(null, agent.Increment(@"csharp.
-TestIncrementPast", 13, pastEventTime));
+TestIncrementPast", 13));
     }
 
     [Test]
     public void InvalidMetricNameReturnsNullUnicode()
     {
-            Assert.AreEqual(null, agent.Increment("東京.怪獣", 13, pastEventTime));
+            Assert.AreEqual(null, agent.Increment("東京.怪獣", 13));
+    }
+
+    [Test]
+    public void ValidMetricNamesCharacters()
+    {
+            Assert.AreEqual(13, agent.Increment("lower-UPPER_underscore.dots", 13));
     }
 
     [Test]
