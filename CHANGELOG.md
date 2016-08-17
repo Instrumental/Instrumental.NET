@@ -1,3 +1,7 @@
+### 1.2.0 [August 17, 2016]
+* Make agent more correctly reject metric names with characters not supported by the service - [A-Za-z0-9] instead of \d\w
+* Change Time() and TimeMs() to use more accurate counters to get more precise measurements with very fast functions
+
 ### 1.1.0 [August 8, 2016]
 * Make agent string more consistent with other Instrumental agents
 
