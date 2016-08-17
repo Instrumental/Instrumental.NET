@@ -16,6 +16,7 @@
 using System;
 using System.Text.RegularExpressions;
 using Common.Logging;
+using System.Diagnostics;
 
 namespace Instrumental
 {
@@ -135,30 +136,32 @@ namespace Instrumental
 
     private T ActuallyTime<T>(String metricName, Func<T> action, double durationMultiplier = 1)
     {
-      var start = DateTime.Now;
+      var timer = new Stopwatch();
+      timer.Start();
       try
         {
           return action();
         }
       finally
         {
-          var end = DateTime.Now;
-          var duration = end - start;
+          timer.Stop();
+          var duration = timer.Elapsed;
           Gauge(metricName, duration.TotalSeconds * durationMultiplier);
         }
     }
 
     private void ActuallyTime(String metricName, Action action, double durationMultiplier = 1)
     {
-      var start = DateTime.Now;
+      var timer = new Stopwatch();
       try
         {
           action();
         }
       finally
         {
-          var end = DateTime.Now;
-          var duration = end - start;
+
+          timer.Stop();
+          var duration = timer.Elapsed;
           Gauge(metricName, duration.TotalSeconds * durationMultiplier);
         }
     }
