@@ -8,6 +8,8 @@ This agent supports custom metric monitoring for .NET applications. It provides 
 Getting Started
 ===============
 
+Visit [instrumentalapp.com](https://instrumentalapp.com) and create an account.
+
 If you are using NuGet, add Instrumental.NET to your packages.config:
 
 ```xml
@@ -16,17 +18,15 @@ If you are using NuGet, add Instrumental.NET to your packages.config:
 
 Or, download [Instrumental.dll](https://github.com/Instrumental/instrumental_agent-csharp/releases/latest).
 
-Visit [instrumentalapp.com](https://instrumentalapp.com) and create an account, then initialize the agent with your API token, found in the Docs section.
-
 Simple Example
 ==============
 
-Here are the basic Instrumental monitoring commands:
+Initialize the agent with your [project API token](https://instrumentalapp.com/docs/tokens), then follow these basic Instrumental monitoring commands:
 
 ```csharp
 using Instrumental;
 
-var agent = new Agent("project api token here");
+var agent = new Agent("PROJECT_API_TOKEN");
 
 agent.Increment("myapp.logins");
 agent.Gauge("myapp.server1.free_ram", 1234567890);
